@@ -8,11 +8,19 @@ st.markdown("""
     <style>
     .main { background-color: #0e1117; direction: rtl; }
     .header-box { background: linear-gradient(90deg, #1f4037, #99f2c8); padding: 20px; border-radius: 12px; color: #0e1117; text-align: center; margin-bottom: 25px; }
-    .metric-card { background-color: #1a1c24; padding: 15px; border-radius: 10px; border: 1px solid #30363d; text-align: center; }
+    .metric-card { 
+    background-color: #FBBF24; /* این یک رنگ زرد/طلایی خیلی شیک است */
+    color: #000000; /* رنگ متن را مشکی می‌کنیم تا روی زرد خوانا باشد */
+    padding: 15px; 
+    border-radius: 10px; 
+    border: 1px solid #D97706; /* یک حاشیه تیره‌تر برای جلوه بهتر */
+    text-align: center; 
+}
+
     </style>
     <div class="header-box">
         <h1 style="margin:0;">⚡ سامانه هوشمند مانیتورینگ پرتفوی نیروگاه‌های خورشیدی</h1>
-        <h3 style="margin:5px 0 0 0;">گروه نیروگاهی نواندیشان | مدیر پروژه: عرشیا</h3>
+        <h3 style="margin:5px 0 0 0;">گروه نیروگاهی نواندیشان |تابستان 1405</h3>
     </div>
 """, unsafe_allow_html=True)
 

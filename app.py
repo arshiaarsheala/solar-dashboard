@@ -252,14 +252,11 @@ with tab3:
         otc_volume = max(0.0, prod_target - bourse_cap)
         bourse_volume = min(prod_target, bourse_cap)
         
-        st.info(f"⚡ **تخصیص کانال فروش:**\n- عرضه در تابلوی بورس سبز: **{bourse_volume:.1f} MWh**\n- مازاد عرضه در بازار دوج max_value=15000, value=7200, step=100)
+        otc_price = st.number_input("نرخ فروش در بازار دوجانبه / رک (تومان/kWh):", min_value=4000, max_value=15000, value=7200, step=100)
+        
+        st.info(f"⚡ تخصیص کانال فروش:\n- عرضه در تابلوی بورس سبز: {bourse_volume:.1f} MWh\n- مازاد عرضه در بازار دوجانبه (رک): {otc_volume:.1f} MWh")
 
     with sim_col2:
-        p1_v = bourse_volume * 0.40
-        p2_v = bourse_volume * 0.40
-        p3_v = bourse_volume * 0.20
-        p1_r = 6900
-        p2
         p1_v = bourse_volume * 0.40
         p2_v = bourse_volume * 0.40
         p3_v = bourse_volume * 0.20
@@ -270,7 +267,7 @@ with tab3:
         bourse_rev = (p1_v * p1_r + p2_v * p2_r + p3_v * p3_r) / 1000.0
         otc_rev = (otc_volume * otc_price) / 1000.0
         total_rev = bourse_rev + otc_rev
-        weighted_rate = (total_rev * 1000.0) / prod_target
+        weighted_rate = (total_rev * 1000.0) / prod_target if prod_target > 0 else 0
 
         st.markdown(f"""
         <div class="strategy-box">
@@ -299,7 +296,7 @@ with tab3:
     <div class="info-box" style="margin-top: 15px;">
         <b>🔍 تحلیل فنی و توجیه استراتژیک عرضه مهر ماه:</b><br>
         ۱. <b>راندمان عالی نیروگاه در مهر ماه:</b> با توجه به کاهش دمای محیطی و به تبع آن افت دمای کاری سلول‌های فتوولتائیک (کاهش ضریب تلفات دمایی ولتاژ) در کنار طول مناسب روز، نیروگاه در یکی از ایده‌آل‌ترین نقاط بازدهی فصلی قرار دارد و پتانسیل تولید بسیار بالا است.<br>
-        ۲. <b>مدیری و بازار رک:</b> با توجه به سقف مجوز عرضه بورسی (۲۲۰ مگاوات‌ساعت)، حجم مجاز در قالب استراتژی پلکانی جهت حداکثرسازی نرخ عرضه می‌شود و مازاد تولید به صورت قراردادهای دوجانبه در <b>بازار رک</b> با صنایع متقاضی مبادله می‌گردد تا از ایجاد درآمد بالای ۱.۸ تا ۲ میلیارد تومان اطمینان حاصل شود.
+        ۲. <b>مدیریت سقف عرضه بورسی و بازار رک:</b> با توجه به سقف مجوز عرضه بورسی (۲۲۰ مگاوات‌ساعت)، حجم مجاز در قالب استراتژی پلکانی جهت حداکثرسازی نرخ عرضه می‌شود و مازاد تولید به صورت قراردادهای دوجانبه در <b>بازار رک</b> با صنایع متقاضی مبادله می‌گردد تا از ایجاد درآمد بالای ۱.۸ تا ۲ میلیارد تومان اطمینان حاصل شود.
     </div>
     """, unsafe_allow_html=True)
 
@@ -307,4 +304,100 @@ with tab3:
 # تب چهارم: پایش O&M و تولید
 # ==========================================
 with tab4:
-    st.subheader("🔧 پ.subheader("🔧 پ
+    st.subheader("🔧 پایش عملکرد فنی، تولید و نگهداری (O&M)")
+    
+    selected_plant = st.radio(
+        "انتخاب نیروگاه جهت مشاهده وضعیت فنی و راندمان:",
+        ["⚡ نواندیشان ۱ (۱۰ مگاوات - انارک)", "⚡ نواندیشان ۲ (۱ مگاوات - شهرک علمی و تحقیقاتی اصفهان)"],
+        horizontal=True
+    )
+    
+    if "نواندیشان ۱" in selected_plant:
+        om_cols = st.columns(3)
+        with om_cols[0]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">تولید تجمعی دوره (۶ ماهه)</div>
+                    <div class="metric-value">۹۹۴.۶ <span class="metric-unit">MWh</span></div>
+                </div>
+            """, unsafe_allow_html=True)
+        with om_cols[1]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">ضریب عملکرد (PR) میانگین</div>
+                    <div class="metric-value">٪ ۸۱.۵ <span class="metric-unit"></span></div>
+                </div>
+            """, unsafe_allow_html=True)
+        with om_cols[2]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">ضریب آماده‌به‌کاری (Availability)</div>
+                    <div class="metric-value">٪ ۹۹.۲ <span class="metric-unit"></span></div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        st.markdown("""
+        <div class="success-box">
+            ✅ <b>وضعیت تجهیزات نواندیشان ۱:</b> کلیه استرینگ‌ها، اینورترهای مرکزی/رشته‌ای، ترانسفورماتورها و فیدرهای خروجی در وضعیت نرمال و سنکرون با شبکه قرار دارند.
+        </div>
+        """, unsafe_allow_html=True)
+        
+    else:
+        om_cols2 = st.columns(3)
+        with om_cols2[0]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">ظرفیت تزریق به شبکه</div>
+                    <div class="metric-value">۱.۰ <span class="metric-unit">MW</span></div>
+                </div>
+            """, unsafe_allow_html=True)
+        with om_cols2[1]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">ضریب عملکرد (PR)</div>
+                    <div class="metric-value">٪ ۸۲.۸ <span class="metric-unit"></span></div>
+                </div>
+            """, unsafe_allow_html=True)
+        with om_cols2[2]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">ضریب آماده‌به‌کاری (Availability)</div>
+                    <div class="metric-value">٪ ۹۹.۶ <span class="metric-unit"></span></div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        st.markdown("""
+        <div class="success-box">
+            ✅ <b>وضعیت تجهیزات نواندیشان ۲:</b> اینورترها، تابلوهای DC/AC و سیستم مانیتورینگ متصل به بورس سبز در وضعیت کاملاً پایدار و بدون خطای عایقی عمل می‌کنند.
+        </div>
+        """, unsafe_allow_html=True)
+
+# ==========================================
+# تب پنجم: پروژه‌های احداث و توسعه
+# ==========================================
+with tab5:
+    st.subheader("🏗️ وضعیت پیشرفت پروژه‌های فاز احداث و توسعه")
+    st.caption("مانیتورینگ فاز مهندسی، تأمین تجهیزات، عملیات اجرایی و اتصال به شبکه")
+    
+    st.markdown("#### ⚡ نواندیشان ۳ (۴ مگاوات - انارک)")
+    st.write("**پیشرفت کل پروژه: ۸۰٪** (فاز پایانی و آماده‌سازی اتصال به شبکه)")
+    st.progress(0.80)
+    st.caption("اقدامات بحرانی: تست کوبیکل‌ها توسط شرکت تستا، راه‌اندازی مودم RTU دیسپاچینگ، تخصیص کد PGDS و نصب کنتور اندازه‌گیری شرکت اختربرق.")
+    
+    st.markdown("---")
+    
+    st.markdown("#### ⚡ نواندیشان ۴ (۴ مگاوات - اردکان)")
+    st.write("**پیشرفت کل پروژه: ۲۰٪** (فاز مهندسی و زیرساخت)")
+    st.progress(0.20)
+    st.caption("اقدامات بحرانی: تمدید مجوز شرکت توزیع برق یزد، اجرای فنس‌کشی و اتصال انشعاب برق کارگاهی اردکان.")
+    
+    st.markdown("---")
+    
+    st.markdown("#### 🌐 ساختگاه‌های جدید (فاز توسعه استان یزد)")
+    st.write("**پیشرفت مطالعات و اخذ موافقت اصولی: ۱۵٪**")
+    st.progress(0.15)
+    st.caption("اقدامات بحرانی: پیگیری تخصیص زمین و ساختگاه‌های خورشیدی مستعد با استانداری و برق منطقه‌ای یزد.")
+
+# --- پانویس داشبورد ---
+st.markdown("---")
+st.markdown("<p style='text-align: center; color: #64748b; font-size: 12px;'>سامانه مدیریت یکپارچه پرتفوی نیروگاه‌های خورشیدی | نسخه نهایی ۳.۱</p>", unsafe_allow_html=True)

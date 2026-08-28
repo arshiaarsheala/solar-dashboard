@@ -5,23 +5,22 @@ import plotly.graph_objects as go
 
 # --- پیکربندی اولیه صفحه ---
 st.set_page_config(
-    page_title="داشبورد مدیریت پرتفوی نیروگاه‌های خورشیدی",
+    page_title="داشبورد مدیریت سبد نیروگاه‌های خورشیدی",
     page_icon="☀️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- استایل‌های اختصاصی، فونت وزیرمتن و راست‌چین‌سازی ---
+# --- استایل‌های اختصاصی، فونت وزیرمتن و راست‌چین‌سازی استاندارد ---
 st.markdown("""
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
-    <style>
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+<style>
     html, body, [class*="css"], .stMarkdown, .stText, h1, h2, h3, h4, h5, h6, p, div, span {
         font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         direction: rtl;
         text-align: right;
     }
     
-    /* کارت‌های شاخص عملکردی (KPI Cards) */
     .metric-card {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         border-radius: 12px;
@@ -52,7 +51,6 @@ st.markdown("""
         margin-right: 4px;
     }
 
-    /* باکس‌های هشدار و اطلاع‌رسانی */
     .info-box {
         background: rgba(30, 41, 59, 0.7);
         border-radius: 10px;
@@ -78,7 +76,6 @@ st.markdown("""
         border: 1px solid rgba(245, 158, 11, 0.3);
     }
 
-    /* تب‌ها */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         direction: rtl;
@@ -89,7 +86,7 @@ st.markdown("""
         border-radius: 8px 8px 0px 0px;
         padding: 10px 20px;
     }
-    </style>
+</style>
 """, unsafe_allow_html=True)
 
 # --- هدر اصلی داشبورد ---
@@ -206,9 +203,8 @@ with tab2:
 # تب سوم: تحلیل مالی و استراتژی بورس
 # ==========================================
 with tab3:
-    st.subheader("📈 تحلیل مالی، عملکرد ۶ ماهه و استراتژی قیمت‌گذاری بورس سبز")
+    st.subheader("📈 تحلیل مالی، عملکرد ۶ ماهه و استراتژی فروش مهر ماه")
     
-    # استفاده از کلیدهای استاندارد انگلیسی برای جلوگیری از خطای سینتکس
     df_finance = pd.DataFrame({
         "month": ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور"],
         "generation_mwh": [166.6, 166.6, 148.8, 163.6, 174.8, 178.5],
@@ -247,63 +243,62 @@ with tab3:
         st.plotly_chart(fig_line, use_container_width=True)
         
     st.markdown("---")
-    st.subheader("🎯 شبیه‌ساز و استراتژی قیمت‌گذاری عرضه مهر ماه")
+    st.subheader("🎯 شبیه‌ساز استراتژی تلفیقی مهر ماه (بورس سبز + بازار رک / دوجانبه)")
     
     sim_col1, sim_col2 = st.columns([1, 2])
     
     with sim_col1:
-        prod_target = st.number_input("پیش‌بینی حجم تولید مهر ماه (MWh):", min_value=50.0, max_value=300.0, value=138.0, step=1.0)
-        pricing_model = st.selectbox(
-            "انتخاب مدل استراتژی عرضه:",
-            ["استراتژی بهینه پلکانی (هدف بالای ۱ میلیارد تومان)", "فروش با نرخ پایه متعادل (۶,۸۰۰ تومان)", "استراتژی تمام رقابتی (۷,۵۰۰ تومان)"]
-        )
+        prod_target = st.number_input("پیش‌بینی کل تولید مهر ماه (MWh):", min_value=100.0, max_value=350.0, value=250.0, step=5.0)
+        bourse_cap = 220.0  # سقف ظرفیت عرضه بورس
+        otc_volume = max(0.0, prod_target - bourse_cap)
+        bourse_volume = min(prod_target, bourse_cap)
         
+        st.info(f"⚡ **تخصیص کانال فروش:**\n- عرضه در تابلوی بورس سبز: **{bourse_volume:.1f} MWh**\n- مازاد عرضه در بازار دوجانبه (رک): **{otc_volume:.1f} MWh**")
+        
+        otc_price = st.number_input("نرخ فروش در بازار دوجانبه/رک (تومان):", min_value=5000, max_value=15000, value=7200, step=100)
+
     with sim_col2:
-        if "استراتژی بهینه پلکانی" in pricing_model:
-            p1_v = prod_target * 0.40
-            p2_v = prod_target * 0.40
-            p3_v = prod_target * 0.20
-            p1_r = 6900
-            p2_r = 7800
-            p3_r = 9100
-            total_rev = (p1_v * p1_r + p2_v * p2_r + p3_v * p3_r) / 1000.0
-            avg_rate = (total_rev * 1000.0) / prod_target
-            
-            st.markdown(f"""
-            <div class="strategy-box">
-                <h4 style="color:#f59e0b; margin-top:0;">💡 سناریوی پیشنهادی عرضه پلکانی به کارگزار بورس:</h4>
-                <ul>
-                    <li><b>پله ۱ (۴۰٪ حجم - پایه/تضمین نقدینگی):</b> {p1_v:.1f} MWh با نرخ <b>{p1_r:,.0f} تومان</b> ➔ {(p1_v*p1_r)/1000:.1f} م.ت</li>
-                    <li><b>پله ۲ (۴۰٪ حجم - رقابتی با صنایع بزرگ):</b> {p2_v:.1f} MWh با نرخ <b>{p2_r:,.0f} تومان</b> ➔ {(p2_v*p2_r)/1000:.1f} م.ت</li>
-                    <li><b>پله ۳ (۲۰٪ حجم - تهاجمی/پیک تقاضا):</b> {p3_v:.1f} MWh با نرخ <b>{p3_r:,.0f} تومان</b> ➔ {(p3_v*p3_r)/1000:.1f} م.ت</li>
-                </ul>
-                <hr style="border-color: rgba(245, 158, 11, 0.2);">
-                <div style="font-size: 16px; font-weight: bold; color: #10b981;">
-                    🎯 درآمد پیش‌بینی‌شده کل مهر: {total_rev:,.1f} میلیون تومان ({(total_rev/1000):.2f} میلیارد تومان)
-                </div>
-                <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
-                    میانگین وزنی کشف نرخ: {avg_rate:,.0f} تومان به ازای هر کیلووات ساعت
-                </div>
+        # استراتژی پلکانی برای حجم بورس
+        p1_v = bourse_volume * 0.40
+        p2_v = bourse_volume * 0.40
+        p3_v = bourse_volume * 0.20
+        p1_r = 6900
+        p2_r = 7800
+        p3_r = 9100
+        
+        bourse_rev = (p1_v * p1_r + p2_v * p2_r + p3_v * p3_r) / 1000.0
+        otc_rev = (otc_volume * otc_price) / 1000.0
+        total_rev = bourse_rev + otc_rev
+        weighted_rate = (total_rev * 1000.0) / prod_target
+
+        st.markdown(f"""
+        <div class="strategy-box">
+            <h4 style="color:#f59e0b; margin-top:0;">💡 سناریوی بهینه فروش و عرضه تلفیقی مهر ماه:</h4>
+            <b>الف) تابلوی بورس سبز (حجم {bourse_volume:.1f} MWh):</b>
+            <ul>
+                <li><b>پله ۱ (۴۰٪ حجم بورس - پایه):</b> {p1_v:.1f} MWh با نرخ <b>{p1_r:,.0f} تومان</b> ➔ {(p1_v*p1_r)/1000:.1f} م.ت</li>
+                <li><b>پله ۲ (۴۰٪ حجم بورس - رقابتی):</b> {p2_v:.1f} MWh با نرخ <b>{p2_r:,.0f} تومان</b> ➔ {(p2_v*p2_r)/1000:.1f} م.ت</li>
+                <li><b>پله ۳ (۲۰٪ حجم بورس - تهاجمی/پیک):</b> {p3_v:.1f} MWh با نرخ <b>{p3_r:,.0f} تومان</b> ➔ {(p3_v*p3_r)/1000:.1f} م.ت</li>
+            </ul>
+            <b>ب) بازار دوجانبه / خارج از پایاپای (رک) (حجم {otc_volume:.1f} MWh):</b>
+            <ul>
+                <li>فروش مستقیم مازاد سقف مجوز: <b>{otc_volume:.1f} MWh</b> با نرخ <b>{otc_price:,.0f} تومان</b> ➔ {otc_rev:.1f} م.ت</li>
+            </ul>
+            <hr style="border-color: rgba(245, 158, 11, 0.2);">
+            <div style="font-size: 17px; font-weight: bold; color: #10b981;">
+                🎯 کل درآمد پیش‌بینی‌شده مهر ماه: {total_rev:,.1f} میلیون تومان ({(total_rev/1000):.2f} میلیارد تومان)
             </div>
-            """, unsafe_allow_html=True)
-        else:
-            fixed_rate = 6800 if "۶,۸۰۰" in pricing_model else 7500
-            total_rev = (prod_target * fixed_rate) / 1000.0
-            st.markdown(f"""
-            <div class="strategy-box">
-                <h4 style="color:#3b82f6; margin-top:0;">📊 برآورد مدل نرخ ثابت:</h4>
-                <div>حجم کل عرضه: {prod_target} MWh</div>
-                <div>نرخ مفروض: {fixed_rate:,.0f} تومان</div>
-                <div style="font-size: 16px; font-weight: bold; color: #f59e0b; margin-top: 10px;">
-                    درآمد برآوردی: {total_rev:,.1f} میلیون تومان ({(total_rev/1000):.2f} میلیارد تومان)
-                </div>
+            <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+                میانگین وزنی نرخ کل سبد: {weighted_rate:,.0f} تومان به ازای هر کیلووات ساعت
             </div>
-            """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("""
     <div class="info-box" style="margin-top: 15px;">
-        <b>🔍 توجیه استراتژیک و منطق قیمت‌گذاری مهر ماه:</b><br>
-        با ورود به پاییز و کاهش زاویه تابش، تولید سراسری کلیه نیروگاه‌های تجدیدپذیر کاهش می‌یابد که به معنای <b>افت حجم عرضه در تابلوی بورس سبز</b> است. از طرف دیگر، صنایع مشمول ماده ۱۶ قانون جهش تولید دانش‌بنیان برای جبران کسری تعهدات خود با تقاضای بالا وارد بازار می‌شوند. استراتژی عرضه پلکانی به ما این امکان را می‌دهد که ضمن تضمین فروش حجم پایه، با پله‌های تهاجمی بیش از ۹,۰۰۰ تومان، بالاترین ارزش نقدی را جذب کرده و <b>درآمد قطعی بالای ۱ میلیارد تومان</b> را ثبت نماییم.
+        <b>🔍 تحلیل فنی و توجیه استراتژیک عرضه مهر ماه:</b><br>
+        ۱. <b>راندمان عالی نیروگاه در مهر ماه:</b> با توجه به کاهش دمای محیطی و به تبع آن افت دمای کاری سلول‌های فتوولتائیک (کاهش ضریب تلفات دمایی ولتاژ) در کنار طول مناسب روز، نیروگاه در یکی از ایده‌آل‌ترین نقاط بازدهی فصلی قرار دارد و پتانسیل تولید بسیار بالا است.<br>
+        ۲. <b>مدیریت سقف عرضه بورسی و بازار رک:</b> با توجه به سقف مجوز عرضه بورسی (۲۲۰ مگاوات‌ساعت)، حجم مجاز در قالب استراتژی پلکانی جهت حداکثرسازی نرخ عرضه می‌شود و مازاد تولید به صورت قراردادهای دوجانبه در <b>بازار رک</b> با صنایع متقاضی مبادله می‌گردد تا از ایجاد درآمد بالای ۱.۸ تا ۲ میلیارد تومان اطمینان حاصل شود.
     </div>
     """, unsafe_allow_html=True)
 
@@ -369,8 +364,7 @@ with tab4:
             st.markdown("""
                 <div class="metric-card">
                     <div class="metric-title">ضریب آماده‌به‌کاری (Availability)</div>
-                    <div class="metric-value">٪ ۹۹.۶ <span class="metric-unit"></span></div>
-                </div>
+                    <div class="metric-value">٪ ۹۹.۶ <span class="metric-unit"></span></div></div>
             """, unsafe_allow_html=True)
             
         st.markdown("""
@@ -389,22 +383,4 @@ with tab5:
     st.markdown("#### ⚡ نواندیشان ۳ (۴ مگاوات - انارک)")
     st.write("**پیشرفت کل پروژه: ۸۰٪** (فاز پایانی و آماده‌سازی اتصال به شبکه)")
     st.progress(0.80)
-    st.caption("اقدامات بحرانی: تست کوبیکل‌ها، کانفیگ مودم RTU دیسپاچینگ، کد PGDS و نصب کنتور اندازه‌گیری شرکت اختربرق.")
-    
-    st.markdown("---")
-    
-    st.markdown("#### ⚡ نواندیشان ۴ (۴ مگاوات - اردکان)")
-    st.write("**پیشرفت کل پروژه: ۲۰٪** (فاز مهندسی و زیرساخت)")
-    st.progress(0.20)
-    st.caption("اقدامات بحرانی: تمدید مجوز شرکت توزیع برق یزد، اجرای فنس‌کشی و اتصال انشعاب برق کارگاهی اردکان.")
-    
-    st.markdown("---")
-    
-    st.markdown("#### 🌐 ساختگاه‌های جدید (فاز توسعه استان یزد)")
-    st.write("**پیشرفت مطالعات و اخذ موافقت اصولی: ۱۵٪**")
-    st.progress(0.15)
-    st.caption("اقدامات بحرانی: پیگیری تخصیص زمین و ساختگاه‌های خورشیدی مستعد با استانداری و برق منطقه‌ای یزد.")
-
-# --- پانویس داشبورد ---
-st.markdown("---")
-st.markdown("<p style='text-align: center; color: #64748b; font-size: 12px;'>سامانه مدیریت یکپارچه پرتفوی نیروگاه‌های خورشیدی | نسخه نهایی ۳.۰</p>", unsafe_allow_html=True)
+    st.caption("اقدامات بحرانی: تست کوبیکل‌ها، کانفیگ مودم RTU دیسپاچینگ،

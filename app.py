@@ -4,48 +4,50 @@ import plotly.express as px
 
 st.set_page_config(page_title="داشبورد نیروگاه‌های خورشیدی", page_icon="☀️", layout="wide")
 
+# اعمال استایل‌های سفارشی
 st.markdown("""
-    <style>
-    .main { background-color: #0e1117; direction: rtl; }
-    .header-box { background: linear-gradient(90deg, #1f4037, #99f2c8); padding: 20px; border-radius: 12px; color: #0e1117; text-align: center; margin-bottom: 25px; }
+<style>
+    .main { 
+        background-color: #0e1117; 
+        direction: rtl; 
+    }
+    .header-box { 
+        background: linear-gradient(90deg, #1f4037, #99f2c8); 
+        padding: 20px; 
+        border-radius: 12px; 
+        color: #0e1117; 
+        text-align: center; 
+        margin-bottom: 25px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
     .metric-card {
         background-color: #FBBF24 !important;
-        color: #000000 !important;
-        padding: 15px;
-        border-radius: 10px;
-        border: 1px solid #D97706;
-        text-align: center;
+        padding: 20px 15px !important;
+        border-radius: 12px !important;
+        border: 2px solid #D97706 !important;
+        text-align: center !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+        margin-bottom: 10px !important;
     }
-    .metric-card h4, .metric-card h2 {
-        color: #000000 !important;
+    .metric-card h4 {
+        color: #1F2937 !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        margin-bottom: 8px !important;
     }
-
-    </style>
-    <div class="header-box">
-        <h1 style="margin:0;">⚡ سامانه هوشمند مانیتورینگ پرتفوی نیروگاه‌های خورشیدی</h1>
-        <h3 style="margin:5px 0 0 0;">گروه نیروگاهی نواندیشان |تابستان 1405</h3>
-    </div>
-""", unsafe_allow_html=True)st.markdown("""
-<style>
-.main { background-color: #0e1117; direction: rtl; }
-.header-box { background: linear-gradient(90deg, #1f4037, #99f2c8); padding: 20px; border-radius: 12px; color: #0e1117; text-align: center; margin-bottom: 25px; }
-.metric-card {
-    background-color: #FBBF24 !important;
-    color: #000000 !important;
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid #D97706;
-    text-align: center;
-}
-.metric-card h4, .metric-card h2, .metric-card p {
-    color: #000000 !important;
-}
+    .metric-card h2 {
+        color: #111827 !important;
+        font-size: 28px !important;
+        font-weight: 900 !important;
+        margin: 0 !important;
+    }
 </style>
+
 <div class="header-box">
     <h1 style="margin:0;">⚡ سامانه هوشمند مانیتورینگ پرتفوی نیروگاه‌های خورشیدی</h1>
+    <h3 style="margin:8px 0 0 0; color: #1f4037;">گروه نیروگاهی نواندیشان | تابستان ۱۴۰۵</h3>
 </div>
 """, unsafe_allow_html=True)
-
 
 tab1, tab2, tab3 = st.tabs(["📊 نمای کلی سبد نیروگاهی", "⚡ بخش بهره‌برداری (O&M)", "🚧 بخش احداث و توسعه (EPC)"])
 

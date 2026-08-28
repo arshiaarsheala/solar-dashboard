@@ -149,14 +149,14 @@ with tab1:
     with col_t1_left:
         st.markdown("#### ⚡ تفکیک ظرفیت پروژه‌ها")
         df_plants = pd.DataFrame({
-            "نیروگاه": ["نواندیشان ۱ (انارک)", "نواندیشان ۲ (شهرک علمی)", "نواندیشان ۳ (انارک)", "نواندیشان ۴ (اردکان)"],
-            "ظرفیت (MW)": [10.0, 1.0, 4.0, 4.0],
-            "وضعیت": ["بهره‌برداری", "بهره‌برداری (بورس سبز)", "فاز پایانی احداث", "در حال احداث"]
+            "plant_name": ["نواندیشان ۱ (انارک)", "نواندیشان ۲ (شهرک علمی)", "نواندیشان ۳ (انارک)", "نواندیشان ۴ (اردکان)"],
+            "capacity_mw": [10.0, 1.0, 4.0, 4.0],
+            "status": ["بهره‌برداری", "بهره‌برداری (بورس سبز)", "فاز پایانی احداث", "در حال احداث"]
         })
         fig_pie = px.pie(
             df_plants, 
-            values="ظرفیت (MW)", 
-            names="نیروگاه", 
+            values="capacity_mw", 
+            names="plant_name", 
             hole=0.45,
             color_discrete_sequence=["#10b981", "#3b82f6", "#f59e0b", "#ef4444"]
         )
@@ -200,7 +200,7 @@ with tab2:
         st.checkbox("پیگیری و برقراری خط تلفن ثابت نیروگاه توسط شرکت الماس شرق", value=False)
         
         st.markdown("### 🌐 فاز توسعه و ساختگاه‌های جدید")
-        st.checkbox("پیگیری موافقت اصولی و تخصیص ساختگاه‌های جدید  استان یزد (استانداری و برق منطقه‌ای یزد)", value=False)
+        st.checkbox("پیگیری موافقت اصولی و تخصیص ساختگاه‌های جدید خورشیدی در استان یزد (استانداری و برق منطقه‌ای یزد)", value=False)
 
 # ==========================================
 # تب سوم: تحلیل مالی و استراتژی بورس
@@ -208,24 +208,26 @@ with tab2:
 with tab3:
     st.subheader("📈 تحلیل مالی، عملکرد ۶ ماهه و استراتژی قیمت‌گذاری بورس سبز")
     
+    # استفاده از کلیدهای استاندارد انگلیسی برای جلوگیری از خطای سینتکس
     df_finance = pd.DataFrame({
-        "ماه" ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور"],
-        "تولید_MWh": [166.6, 166.6, 148.8, 163.6, 174.8, 178.5],
-        "نرخ_تومان": [3500, 4777, 7500, 9500, 14269, 7475],
-        "درآمد_میلیون": [640.0, 829.0, 1220.0, 1700.0, 2660.0, 1380.0]
+        "month": ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور"],
+        "generation_mwh": [166.6, 166.6, 148.8, 163.6, 174.8, 178.5],
+        "price_toman": [3500, 4777, 7500, 9500, 14269, 7475],
+        "revenue_million": [640.0, 829.0, 1220.0, 1700.0, 2660.0, 1380.0]
     })
     
     col_f1, col_f2 = st.columns(2)
     
     with col_f1:
-        st.markdown("#### 💰 روند درآمد وصولی ماهانه (میلیون تومان)"
+        st.markdown("#### 💰 روند درآمد وصولی ماهانه (میلیون تومان)")
         fig_bar = px.bar(
             df_finance, 
-            x="ماه", 
-            y="درآمد_میلیون", 
-            text="درآمد_میلیون",
-            color="درآمد_میلیون",
-            color_continuous_scale="Viridis"
+            x="month", 
+            y="revenue_million", 
+            text="revenue_million",
+            color="revenue_million",
+            color_continuous_scale="Viridis",
+            labels={"month": "ماه", "revenue_million": "درآمد (میلیون تومان)"}
         )
         fig_bar.update_traces(texttemplate='%{text:.0f}', textposition='outside')
         fig_bar.update_layout(font_family="Vazirmatn", height=350, margin=dict(t=20, b=20, l=20, r=20))
@@ -235,10 +237,10 @@ with tab3:
         st.markdown("#### 📈 روند کشف نرخ برق سبز در بورس انرژی (تومان / kWh)")
         fig_line = px.line(
             df_finance, 
-            ="ماه", 
-            y="نرخ_تومان", 
+            x="month", 
+            y="price_toman", 
             markers=True,
-            line_shape="linear"
+            labels={"month": "ماه", "price_toman": "نرخ (تومان/kWh)"}
         )
         fig_line.update_traces(line_color="#f59e0b", marker=dict(size=8, color="#d97706"))
         fig_line.update_layout(font_family="Vazirmatn", height=350, margin=dict(t=20, b=20, l=20, r=20))
@@ -250,7 +252,7 @@ with tab3:
     sim_col1, sim_col2 = st.columns([1, 2])
     
     with sim_col1:
-        prod_target = st.number_input("پیش‌بینی حجم تولید مهر ماه (MWh):", mi_value=50.0, max_value=300.0, value=138.0, step=1.0)
+        prod_target = st.number_input("پیش‌بینی حجم تولید مهر ماه (MWh):", min_value=50.0, max_value=300.0, value=138.0, step=1.0)
         pricing_model = st.selectbox(
             "انتخاب مدل استراتژی عرضه:",
             ["استراتژی بهینه پلکانی (هدف بالای ۱ میلیارد تومان)", "فروش با نرخ پایه متعادل (۶,۸۰۰ تومان)", "استراتژی تمام رقابتی (۷,۵۰۰ تومان)"]
@@ -272,11 +274,137 @@ with tab3:
                 <h4 style="color:#f59e0b; margin-top:0;">💡 سناریوی پیشنهادی عرضه پلکانی به کارگزار بورس:</h4>
                 <ul>
                     <li><b>پله ۱ (۴۰٪ حجم - پایه/تضمین نقدینگی):</b> {p1_v:.1f} MWh با نرخ <b>{p1_r:,.0f} تومان</b> ➔ {(p1_v*p1_r)/1000:.1f} م.ت</li>
-                    <li><b>پله ۲ (۰٪ حجم - رقابتی با صنایع بزرگ):</b> {p2_v:.1f} MWh با نرخ <b>{p2_r:,.0f} تومان</b> ➔ {(p2_v*p2_r)/1000:.1f} م.ت</li>
+                    <li><b>پله ۲ (۴۰٪ حجم - رقابتی با صنایع بزرگ):</b> {p2_v:.1f} MWh با نرخ <b>{p2_r:,.0f} تومان</b> ➔ {(p2_v*p2_r)/1000:.1f} م.ت</li>
                     <li><b>پله ۳ (۲۰٪ حجم - تهاجمی/پیک تقاضا):</b> {p3_v:.1f} MWh با نرخ <b>{p3_r:,.0f} تومان</b> ➔ {(p3_v*p3_r)/1000:.1f} م.ت</li>
                 </ul>
                 <hr style="border-color: rgba(245, 158, 11, 0.2);">
                 <div style="font-size: 16px; font-weight: bold; color: #10b981;">
                     🎯 درآمد پیش‌بینی‌شده کل مهر: {total_rev:,.1f} میلیون تومان ({(total_rev/1000):.2f} میلیارد تومان)
                 </div>
-                <div style="font-size: 13px; 
+                <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+                    میانگین وزنی کشف نرخ: {avg_rate:,.0f} تومان به ازای هر کیلووات ساعت
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            fixed_rate = 6800 if "۶,۸۰۰" in pricing_model else 7500
+            total_rev = (prod_target * fixed_rate) / 1000.0
+            st.markdown(f"""
+            <div class="strategy-box">
+                <h4 style="color:#3b82f6; margin-top:0;">📊 برآورد مدل نرخ ثابت:</h4>
+                <div>حجم کل عرضه: {prod_target} MWh</div>
+                <div>نرخ مفروض: {fixed_rate:,.0f} تومان</div>
+                <div style="font-size: 16px; font-weight: bold; color: #f59e0b; margin-top: 10px;">
+                    درآمد برآوردی: {total_rev:,.1f} میلیون تومان ({(total_rev/1000):.2f} میلیارد تومان)
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="info-box" style="margin-top: 15px;">
+        <b>🔍 توجیه استراتژیک و منطق قیمت‌گذاری مهر ماه:</b><br>
+        با ورود به پاییز و کاهش زاویه تابش، تولید سراسری کلیه نیروگاه‌های تجدیدپذیر کاهش می‌یابد که به معنای <b>افت حجم عرضه در تابلوی بورس سبز</b> است. از طرف دیگر، صنایع مشمول ماده ۱۶ قانون جهش تولید دانش‌بنیان برای جبران کسری تعهدات خود با تقاضای بالا وارد بازار می‌شوند. استراتژی عرضه پلکانی به ما این امکان را می‌دهد که ضمن تضمین فروش حجم پایه، با پله‌های تهاجمی بیش از ۹,۰۰۰ تومان، بالاترین ارزش نقدی را جذب کرده و <b>درآمد قطعی بالای ۱ میلیارد تومان</b> را ثبت نماییم.
+    </div>
+    """, unsafe_allow_html=True)
+
+# ==========================================
+# تب چهارم: پایش O&M و تولید
+# ==========================================
+with tab4:
+    st.subheader("🔧 پایش عملکرد فنی، تولید و نگهداری (O&M)")
+    
+    selected_plant = st.radio(
+        "انتخاب نیروگاه جهت مشاهده وضعیت فنی و راندمان:",
+        ["⚡ نواندیشان ۱ (۱۰ مگاوات - انارک)", "⚡ نواندیشان ۲ (۱ مگاوات - شهرک علمی و تحقیقاتی اصفهان)"],
+        horizontal=True
+    )
+    
+    if "نواندیشان ۱" in selected_plant:
+        om_cols = st.columns(3)
+        with om_cols[0]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">تولید تجمعی دوره (۶ ماهه)</div>
+                    <div class="metric-value">۹۹۴.۶ <span class="metric-unit">MWh</span></div>
+                </div>
+            """, unsafe_allow_html=True)
+        with om_cols[1]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">ضریب عملکرد (PR) میانگین</div>
+                    <div class="metric-value">٪ ۸۱.۵ <span class="metric-unit"></span></div>
+                </div>
+            """, unsafe_allow_html=True)
+        with om_cols[2]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">ضریب آماده‌به‌کاری (Availability)</div>
+                    <div class="metric-value">٪ ۹۹.۲ <span class="metric-unit"></span></div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        st.markdown("""
+        <div class="success-box">
+            ✅ <b>وضعیت تجهیزات نواندیشان ۱:</b> کلیه استرینگ‌ها، اینورترهای مرکزی/رشته‌ای، ترانسفورماتورها و فیدرهای خروجی در وضعیت نرمال و سنکرون با شبکه قرار دارند.
+        </div>
+        """, unsafe_allow_html=True)
+        
+    else:
+        om_cols2 = st.columns(3)
+        with om_cols2[0]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">ظرفیت تزریق به شبکه</div>
+                    <div class="metric-value">۱.۰ <span class="metric-unit">MW</span></div>
+                </div>
+            """, unsafe_allow_html=True)
+        with om_cols2[1]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">ضریب عملکرد (PR)</div>
+                    <div class="metric-value">٪ ۸۲.۸ <span class="metric-unit"></span></div>
+                </div>
+            """, unsafe_allow_html=True)
+        with om_cols2[2]:
+            st.markdown("""
+                <div class="metric-card">
+                    <div class="metric-title">ضریب آماده‌به‌کاری (Availability)</div>
+                    <div class="metric-value">٪ ۹۹.۶ <span class="metric-unit"></span></div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        st.markdown("""
+        <div class="success-box">
+            ✅ <b>وضعیت تجهیزات نواندیشان ۲:</b> اینورترها، تابلوهای DC/AC و سیستم مانیتورینگ متصل به بورس سبز در وضعیت کاملاً پایدار و بدون خطای عایقی عمل می‌کنند.
+        </div>
+        """, unsafe_allow_html=True)
+
+# ==========================================
+# تب پنجم: پروژه‌های احداث و توسعه
+# ==========================================
+with tab5:
+    st.subheader("🏗️ وضعیت پیشرفت پروژه‌های فاز احداث و توسعه")
+    st.caption("مانیتورینگ فاز مهندسی، تأمین تجهیزات، عملیات اجرایی و اتصال به شبکه")
+    
+    st.markdown("#### ⚡ نواندیشان ۳ (۴ مگاوات - انارک)")
+    st.write("**پیشرفت کل پروژه: ۸۰٪** (فاز پایانی و آماده‌سازی اتصال به شبکه)")
+    st.progress(0.80)
+    st.caption("اقدامات بحرانی: تست کوبیکل‌ها، کانفیگ مودم RTU دیسپاچینگ، کد PGDS و نصب کنتور اندازه‌گیری شرکت اختربرق.")
+    
+    st.markdown("---")
+    
+    st.markdown("#### ⚡ نواندیشان ۴ (۴ مگاوات - اردکان)")
+    st.write("**پیشرفت کل پروژه: ۲۰٪** (فاز مهندسی و زیرساخت)")
+    st.progress(0.20)
+    st.caption("اقدامات بحرانی: تمدید مجوز شرکت توزیع برق یزد، اجرای فنس‌کشی و اتصال انشعاب برق کارگاهی اردکان.")
+    
+    st.markdown("---")
+    
+    st.markdown("#### 🌐 ساختگاه‌های جدید (فاز توسعه استان یزد)")
+    st.write("**پیشرفت مطالعات و اخذ موافقت اصولی: ۱۵٪**")
+    st.progress(0.15)
+    st.caption("اقدامات بحرانی: پیگیری تخصیص زمین و ساختگاه‌های خورشیدی مستعد با استانداری و برق منطقه‌ای یزد.")
+
+# --- پانویس داشبورد ---
+st.markdown("---")
+st.markdown("<p style='text-align: center; color: #64748b; font-size: 12px;'>سامانه مدیریت یکپارچه پرتفوی نیروگاه‌های خورشیدی | نسخه نهایی ۳.۰</p>", unsafe_allow_html=True)

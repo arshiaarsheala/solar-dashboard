@@ -5,30 +5,33 @@ import streamlit as st
 
 # تنظیمات اولیه صفحه
 st.set_page_config(
-    page_title="داشبورد فرماندهی پرتفوی خورشیدی",
+    page_title="داشبورد فرماندهی سبد خورشیدی",
     page_icon="☀️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# اعمال استایل‌های سفارشی و فونت وزیر متن
+# اعمال استایل‌های سفارشی بدون آسیب به ساختار رندر استریم‌لیت
 st.markdown(
     """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;900&display=swap');
     
-    * {
+    html, body, [class*="css"], .stMarkdown, p, h1, h2, h3, h4, h5, h6, span, div {
         font-family: 'Vazirmatn', sans-serif !important;
+    }
+    
+    .block-container {
         direction: rtl;
         text-align: right;
     }
     
-    .stMetric {
-        background-color: #1E293B !important;
-        padding: 15px !important;
-        border-radius: 10px !important;
-        border: 1px solid #334155 !important;
-        border-top: 4px solid #FBBF24 !important;
+    [data-testid="stMetric"] {
+        background-color: #1E293B;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #334155;
+        border-top: 4px solid #FBBF24;
     }
     
     [data-testid="stMetricValue"] {
@@ -42,9 +45,9 @@ st.markdown(
 
 # عنوان اصلی داشبورد
 st.title("☀️ داشبورد فرماندهی مدیریت سبد نیروگاه‌های خورشیدی")
-st.caption("سیستم پایش فنی، پیشرفت پروژه‌ها و استراتژی معاملات بورس سبز")
+st.caption("سیستم پایش فنی، پیشرفت پروژه‌ها و استراتژی بورس انرژی")
 
-# منوی تب‌های داشبورد
+# تعریف تب‌ها
 tab_overview, tab_tasks, tab_finance, tab_om, tab_dev = st.tabs([
     "📊 نمای کلی سبد",
     "📝 برنامه هفتگی و Action Plan",
@@ -58,7 +61,7 @@ tab_overview, tab_tasks, tab_finance, tab_om, tab_dev = st.tabs([
 # ==========================================
 with tab_overview:
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("ظرفیت کل نامی پرتفو", "۴.۰ MWp")
+    col1.metric("ظرفیت کل پرتفو", "۴.۰ MWp")
     col2.metric("ظرفیت در حال بهره‌برداری", "۱.۰ MWp")
     col3.metric("ظرفیت در دست احداث", "۳.۰ MWp")
     col4.metric("مجموع درآمد ۶ ماهه", "۹.۵۳ میلیارد تومان")
@@ -77,7 +80,7 @@ with tab_overview:
         "وضعیت": ["درحال تولید", "تجهیز کارگاه", "تست کوبیکل", "پیگیری زمین"],
         "پیشرفت فیزیکی (%)": [100, 45, 80, 20],
     })
-    st.dataframe(plants_data, use_container_width=True, hide_index=True)
+    st.dataframe(plants_data, hide_index=True)
 
 # ==========================================
 # تب ۲: برنامه هفتگی
@@ -104,24 +107,16 @@ with tab_tasks:
 with tab_finance:
     st.subheader("📊 تحلیل عملکرد ۶ ماهه و شبیه‌ساز فروش مهر ماه")
 
-    # داده‌های واقعی ۶ ماهه اول سال
     historical_data = pd.DataFrame({
         "ماه": ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور"],
         "حجم_MWh": [166.0, 166.0, 148.0, 163.68, 174.84, 178.56],
         "نرخ_تومان": [3500, 4777, 7500, 9500, 14269, 7475],
-        "درآمد_میلیون_تومان": [
-            581.0,
-            793.0,
-            1110.0,
-            1554.96,
-            2494.85,
-            1334.73,
-        ],
+        "درآمد_میلیون": [581.0, 793.0, 1110.0, 1554.96, 2494.85, 1334.73],
     })
 
     f_col1, f_col2, f_col3, f_col4 = st.columns(4)
     f_col1.metric(
-        "مجموع حجم ۶ ماهه", f"{historical_data['حجم_MWh'].sum():,.1f} MWh"
+        "مجموع عرضه ۶ ماهه", f"{historical_data['حجم_MWh'].sum():,.1f} MWh"
     )
     f_col2.metric("مجموع درآمد", "۹,۵۳۴ میلیون تومان")
     f_col3.metric("میانگین موزون نرخ", "۷,۸۶۰ تومان")
@@ -138,22 +133,22 @@ with tab_finance:
             color_discrete_sequence=["#FBBF24"],
         )
         fig_price.update_layout(template="plotly_dark")
-        st.plotly_chart(fig_price, use_container_width=True)
+        st.plotly_chart(fig_price)
 
     with col_ch2:
         fig_rev = px.bar(
             historical_data,
             x="ماه",
-            y="درآمد_میلیون_تومان",
+            y="درآمد_میلیون",
             title="درآمد وصولی ماهانه (میلیون تومان)",
-            color="درآمد_میلیون_تومان",
+            color="درآمد_میلیون",
             color_continuous_scale="Viridis",
         )
         fig_rev.update_layout(template="plotly_dark")
-        st.plotly_chart(fig_rev, use_container_width=True)
+        st.plotly_chart(fig_rev)
 
     st.markdown("---")
-    st.markdown("### 🎯 شبیه‌ساز و دستیار قیمت‌گذاری مهر ماه")
+    st.markdown("### 🎯 شبیه‌ساز و استراتژی قیمت‌گذاری مهر ماه")
 
     sim_c1, sim_c2 = st.columns([1, 2])
     with sim_c1:
@@ -184,7 +179,7 @@ with tab_finance:
         st.info(f"""
         **خلاصه پیش‌بینی درآمد مهر ماه:**
         * حجم عرضه: **{est_vol:,.1f} MWh**
-        * نرخ محاسباتی: **{target_p:,.0f} تومان**
+        * نرخ مفروض: **{target_p:,.0f} تومان**
         * درآمد برآوردی: **{total_est:,.1f} میلیون تومان** ({total_est / 1000:,.2f} میلیارد تومان)
         """)
 

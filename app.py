@@ -25,7 +25,27 @@ st.markdown("""
         <h1 style="margin:0;">⚡ سامانه هوشمند مانیتورینگ پرتفوی نیروگاه‌های خورشیدی</h1>
         <h3 style="margin:5px 0 0 0;">گروه نیروگاهی نواندیشان |تابستان 1405</h3>
     </div>
+""", unsafe_allow_html=True)st.markdown("""
+<style>
+.main { background-color: #0e1117; direction: rtl; }
+.header-box { background: linear-gradient(90deg, #1f4037, #99f2c8); padding: 20px; border-radius: 12px; color: #0e1117; text-align: center; margin-bottom: 25px; }
+.metric-card {
+    background-color: #FBBF24 !important;
+    color: #000000 !important;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #D97706;
+    text-align: center;
+}
+.metric-card h4, .metric-card h2, .metric-card p {
+    color: #000000 !important;
+}
+</style>
+<div class="header-box">
+    <h1 style="margin:0;">⚡ سامانه هوشمند مانیتورینگ پرتفوی نیروگاه‌های خورشیدی</h1>
+</div>
 """, unsafe_allow_html=True)
+
 
 tab1, tab2, tab3 = st.tabs(["📊 نمای کلی سبد نیروگاهی", "⚡ بخش بهره‌برداری (O&M)", "🚧 بخش احداث و توسعه (EPC)"])
 
